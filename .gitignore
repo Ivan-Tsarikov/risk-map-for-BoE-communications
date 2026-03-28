@@ -239,4 +239,8 @@ legacy/notebooks/*.ipynb
 # Demo local run outputs
 data/demo/interim/**
 data/demo/output/**
+<<<<<<< HEAD
 data/demo/reports/**
+=======
+data/demo/reports/**
+>>>>>>> e39734ab4c49efeb2b0aa4a07924d7aaafbe1704
