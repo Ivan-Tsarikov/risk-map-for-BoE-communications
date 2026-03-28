@@ -2,6 +2,10 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
 
 # C extensions
 *.so
@@ -205,3 +209,34 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+~$*.pptx
+
+# Raw third-party corpus and local-only source files
+articles.csv
+articles.zip
+articles_sample.csv
+districts.csv
+domains.csv
+2505.14326v1.pdf
+
+# Large local artifacts
+data/interim/**
+data/output/**
+!data/output/hot_regions_topics.csv
+!data/output/public_cleaning_summary.json
+tmp_smoke/
+tmp_bench_*/
+_vendor/
+
+# Legacy binary and notebook history
+legacy/presentation/*.pptx
+legacy/notebooks/*.ipynb
+
+# Demo local run outputs
+data/demo/interim/**
+data/demo/output/**
+data/demo/reports/**
