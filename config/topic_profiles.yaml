@@ -1,0 +1,144 @@
+# Controlled pool of central-bank communication topics for semantic matching.
+# Each topic should be narrow enough to interpret, but broad enough to catch real regional media signals.
+#
+# description:
+#   Short semantic explanation of what belongs to the topic.
+# keywords:
+#   Phrases that make the topic easy to inspect and explain in a classroom setting.
+# seed_examples:
+#   Short example snippets that anchor the embedding profile and clarify the intended meaning.
+topics:
+  - name: Inflation and expectations
+    # Use this topic for stories about price growth itself and what households or firms expect next.
+    description: >
+      News about rising or falling prices, inflation expectations, cost-of-living concerns,
+      and public perceptions of whether prices will keep increasing. The topic should capture
+      stories that shape households' and firms' inflation narratives in regional media.
+    keywords:
+      - inflation
+      - prices
+      - price rises
+      - cost of living
+      - price pressure
+      - expected prices
+      - household expectations
+      - inflation outlook
+    seed_examples:
+      - Local families say weekly shopping costs keep rising and expect bills to stay high through winter.
+      - Businesses warn that input prices are still rising and customers now expect further increases.
+
+  - name: Wages, labour market and services inflation
+    description: >
+      News about wages, vacancies, hiring, labour shortages, unemployment, and service-sector pay pressures.
+      This topic matters because wage growth and labour market tightness can feed into persistent inflation,
+      especially in services.
+    keywords:
+      - wages
+      - pay rise
+      - salaries
+      - labour market
+      - labor market
+      - vacancies
+      - hiring
+      - unemployment
+      - staff shortages
+      - service sector
+    seed_examples:
+      - Restaurants and care providers report that they must raise pay to retain staff.
+      - Regional employers struggle to fill vacancies while workers ask for higher wages.
+
+  - name: Household spending and saving
+    description: >
+      News about consumer demand, retail activity, household budgets, savings, and discretionary spending.
+      It should capture whether households are cutting back, spending more cautiously, or dipping into savings.
+    keywords:
+      - consumer spending
+      - retail
+      - saving
+      - savings
+      - household budgets
+      - discretionary spending
+      - shoppers
+      - demand
+      - consumption
+    seed_examples:
+      - High street retailers report weaker footfall as households cut non-essential purchases.
+      - Families say they are using savings to cope with higher monthly bills.
+
+  - name: Housing, mortgages, rents and construction
+    description: >
+      News about rents, mortgages, housing affordability, house prices, residential construction,
+      and the local housing market. The topic covers both costs faced by households and supply-side
+      developments in homebuilding.
+    keywords:
+      - rent
+      - rents
+      - mortgage
+      - mortgages
+      - house prices
+      - housing market
+      - landlords
+      - tenants
+      - construction
+      - homebuilding
+    seed_examples:
+      - Renters face another jump in monthly rents while landlords cite higher mortgage costs.
+      - Builders delay projects as financing and material costs make housing schemes harder to deliver.
+
+  - name: Business demand, output and investment
+    description: >
+      News about local business activity, orders, output, production, expansion plans, and investment.
+      This topic reflects whether regional firms see stronger or weaker demand and whether they are willing
+      to spend on capacity, equipment, or growth.
+    keywords:
+      - business demand
+      - output
+      - production
+      - investment
+      - orders
+      - expansion
+      - capacity
+      - factory
+      - business confidence
+      - firms
+    seed_examples:
+      - Manufacturers report weaker new orders and delay investment decisions.
+      - Local firms expand production after stronger demand from households and exporters.
+
+  - name: Credit, borrowing and debt conditions
+    description: >
+      News about access to loans, borrowing costs, repayment stress, consumer credit, and debt burdens.
+      The topic is central for understanding how tighter or looser financial conditions are felt locally.
+    keywords:
+      - credit
+      - borrowing
+      - debt
+      - loans
+      - repayments
+      - lenders
+      - arrears
+      - refinancing
+      - interest rates
+      - debt burden
+    seed_examples:
+      - Households say loan repayments have become harder to manage after higher rates.
+      - Small firms report that bank credit is more expensive and harder to secure.
+
+  - name: Energy, food and administered-price shocks
+    description: >
+      News about energy bills, food prices, fuel costs, regulated tariffs, and other externally driven price shocks.
+      These stories often shape public inflation perceptions and can create sharp regional communication risks.
+    keywords:
+      - energy bills
+      - fuel costs
+      - food prices
+      - utility bills
+      - tariffs
+      - regulated prices
+      - petrol
+      - electricity
+      - gas prices
+      - supermarket bills
+    seed_examples:
+      - Food and energy bills rise again, putting renewed pressure on household budgets.
+      - Residents react to higher utility tariffs and warn that winter bills will be difficult to afford.

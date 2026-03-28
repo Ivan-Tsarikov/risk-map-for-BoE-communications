@@ -1,0 +1,154 @@
+paths:
+  raw_articles: data/demo/demo_articles.csv
+  cleaned_articles: data/demo/interim/cleaned_articles.parquet
+  candidate_articles: data/demo/interim/candidate_articles.parquet
+  story_lookup: data/demo/interim/story_lookup.parquet
+  story_embeddings: data/demo/interim/story_embeddings.npy
+  scored_articles: data/demo/interim/scored_articles.parquet
+  regional_topic_index: data/demo/interim/regional_topic_index.parquet
+  cleaning_report: data/demo/interim/cleaning_report.json
+  candidate_review_sample: data/demo/output/candidate_review_sample.csv
+  econ_review_sample: data/demo/output/econ_manual_review_sample.csv
+  hot_regions_topics: data/demo/output/hot_regions_topics.csv
+  representative_snippets: data/demo/output/representative_snippets.csv
+  latest_heatmap: data/demo/reports/figures/heatmap_latest_week.png
+  monthly_heatmap: data/demo/reports/figures/heatmap_december_2022.png
+  overall_risk_map: data/demo/reports/figures/overall_top_risk_map.png
+  dominant_topic_map: data/demo/reports/figures/dominant_topic_map.png
+  hot_topic_trends: data/demo/reports/figures/hot_topic_trends.png
+  overall_region_trends: data/demo/reports/figures/overall_region_risk_trends.png
+  story_catalog: data/demo/interim/story_catalog.parquet
+
+runtime:
+  chunk_size: 1000
+  text_min_length: 80
+  text_for_embedding_chars: 800
+  cleaning_date_min: "2020-01-01"
+  cleaning_date_max: "2022-12-31"
+  date_max_delta_days: 365
+  review_sample_per_stratum: 5
+  hot_pairs_top_n: 10
+  random_state: 42
+  run_mode: full
+  embedding_story_cap: 200
+  embedding_strong_share: 0.70
+
+models:
+  sentence_transformer_small: BAAI/bge-small-en-v1.5
+  sentence_transformer_base: BAAI/bge-base-en-v1.5
+  default_sentence_transformer_size: small
+  embedding_batch_size: 8
+  normalize_embeddings: true
+  econ_min_similarity: 0.50
+  econ_margin_threshold: 0.06
+  econ_strong_min_similarity: 0.47
+  econ_strong_margin_threshold: 0.03
+  econ_negative_guard: 0.02
+  topic_min_similarity: 0.50
+  topic_ambiguous_margin: 0.02
+
+filters:
+  strong_keywords:
+    - inflation
+    - price pressure
+    - price pressures
+    - price rise
+    - price rises
+    - cost of living
+    - mortgage
+    - mortgages
+    - rent
+    - rents
+    - house prices
+    - housing market
+    - wages
+    - pay rise
+    - pay rises
+    - salary
+    - salaries
+    - labour market
+    - labor market
+    - unemployment
+    - credit
+    - borrowing
+    - debt
+    - loan
+    - loans
+    - energy bills
+    - food prices
+    - interest rates
+  weak_keywords:
+    - jobs
+    - employment
+    - vacancies
+    - spending
+    - saving
+    - savings
+    - consumer
+    - business
+    - firms
+    - investment
+    - output
+    - demand
+    - construction
+    - productivity
+    - retail
+  url_terms:
+    - business
+    - money
+    - finance
+    - property
+    - housing
+    - mortgage
+    - economy
+    - cost-of-living
+    - energy
+    - consumer
+
+profiles:
+  econ_positive_anchors:
+    - >
+      A local or regional news story about inflation, prices, food costs, energy bills,
+      cost of living pressure, or changes in household purchasing power.
+    - >
+      A news story about household finances, borrowing, debt, loans, consumer credit,
+      savings, or financial pressure on households.
+    - >
+      A regional economic story about wages, jobs, labour market conditions, business demand,
+      output, investment, or changes in local economic activity.
+    - >
+      A story about housing costs, rents, mortgages, affordability, house prices,
+      or construction conditions affecting local households or firms.
+  econ_negative_anchors:
+    - >
+      A local sports story, match report, transfer story, player interview, or club news item.
+    - >
+      A crime, court, police, fire, accident, emergency, or breaking incident report.
+    - >
+      A culture, entertainment, theatre, television, music, festival, or review article.
+    - >
+      A property listing, lifestyle promotion, shopping guide, advertorial, or consumer deal page.
+    - >
+      A general local community story about schools, charity events, local politics,
+      celebrations, or public notices with no real economic analysis.
+
+risk:
+  prior_strength: 20.0
+  support_k: 5.0
+  zscore_clip: 3.0
+  weights:
+    surprise_z: 0.50
+    momentum_z: 0.30
+    mean_similarity_z: 0.20
+
+lexicons:
+  anxiety:
+    - pressure
+    - squeeze
+    - crisis
+    - struggle
+    - hit hard
+    - worry
+    - surge
+    - shock
+

@@ -1,0 +1,10 @@
+numpy
+pandas
+pyarrow
+PyYAML
+sentence-transformers
+matplotlib
+seaborn
+python-pptx
+Pillow
+

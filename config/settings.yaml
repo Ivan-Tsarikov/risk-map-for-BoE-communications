@@ -1,0 +1,166 @@
+# Main project paths.
+# The new default pipeline keeps only the core artifacts that are needed for reuse,
+# scoring, index construction and classroom-facing outputs.
+paths:
+  raw_articles: articles.csv
+  cleaned_articles: data/interim/cleaned_articles.parquet
+  candidate_articles: data/interim/candidate_articles.parquet
+  story_lookup: data/interim/story_lookup.parquet
+  story_embeddings: data/interim/story_embeddings.npy
+  scored_articles: data/interim/scored_articles.parquet
+  regional_topic_index: data/interim/regional_topic_index.parquet
+  cleaning_report: data/interim/cleaning_report.json
+  # Локальные диагностические файлы. Они не предназначены для публикации в GitHub.
+  candidate_review_sample: data/output/candidate_review_sample.csv
+  econ_review_sample: data/output/econ_manual_review_sample.csv
+  # Публично сохраняется только агрегированная таблица hot pairs.
+  hot_regions_topics: data/output/hot_regions_topics.csv
+  representative_snippets: data/output/representative_snippets.csv
+  latest_heatmap: reports/figures/heatmap_latest_week.png
+  monthly_heatmap: reports/figures/heatmap_december_2022.png
+  overall_risk_map: reports/figures/overall_top_risk_map.png
+  dominant_topic_map: reports/figures/dominant_topic_map.png
+  hot_topic_trends: reports/figures/hot_topic_trends.png
+  overall_region_trends: reports/figures/overall_region_risk_trends.png
+  # Legacy file used only to bootstrap story_lookup from already-built embeddings.
+  story_catalog: data/interim/story_catalog.parquet
+
+# Runtime parameters.
+runtime:
+  chunk_size: 100000  # Read large parquet files in manageable chunks.
+  text_min_length: 200  # Drop very short texts that are unlikely to carry stable signal.
+  text_for_embedding_chars: 1200  # Use the start of the article as a compact semantic summary.
+  cleaning_date_min: "2020-01-01"
+  cleaning_date_max: "2023-12-31"
+  date_max_delta_days: 365  # Trust article_date only if it is close to tweet_date.
+  review_sample_per_stratum: 20  # Keep manual review tables small enough for the notebook.
+  hot_pairs_top_n: 25
+  random_state: 42
+  run_mode: dev  # `dev` is the default sampled semantic pilot for local work.
+  embedding_story_cap: 120000  # Number of unique story_key values embedded in dev mode.
+  embedding_strong_share: 0.70  # Most dev slots go to stronger economic candidates.
+
+# Embedding model settings and scoring thresholds.
+models:
+  sentence_transformer_small: BAAI/bge-small-en-v1.5  # Fast default for laptop runs.
+  sentence_transformer_base: BAAI/bge-base-en-v1.5  # Slower fallback for overnight quality checks.
+  default_sentence_transformer_size: small
+  embedding_batch_size: 32
+  normalize_embeddings: true  # Inner product becomes cosine similarity after normalization.
+  econ_min_similarity: 0.50  # Standard econ gate threshold for the positive anchors.
+  econ_margin_threshold: 0.06  # Positive econ anchor should beat the strongest negative anchor by this margin.
+  econ_strong_min_similarity: 0.47  # Slightly relaxed threshold for strong keyword candidates.
+  econ_strong_margin_threshold: 0.03  # Strong keyword candidates still need a positive semantic margin.
+  econ_negative_guard: 0.02  # If negative anchors dominate by this gap, the story is rejected.
+  topic_min_similarity: 0.50  # Below this score an economic story stays in `other_econ`.
+  topic_ambiguous_margin: 0.02  # Small top1-top2 gaps are flagged as ambiguous.
+
+# Cheap candidate rules from step 2.
+filters:
+  strong_keywords:
+    - inflation
+    - price pressure
+    - price pressures
+    - price rise
+    - price rises
+    - cost of living
+    - mortgage
+    - mortgages
+    - rent
+    - rents
+    - house prices
+    - housing market
+    - wages
+    - pay rise
+    - pay rises
+    - salary
+    - salaries
+    - labour market
+    - labor market
+    - unemployment
+    - credit
+    - borrowing
+    - debt
+    - loan
+    - loans
+    - energy bills
+    - food prices
+    - interest rates
+  weak_keywords:
+    - jobs
+    - employment
+    - vacancies
+    - spending
+    - saving
+    - savings
+    - consumer
+    - business
+    - firms
+    - investment
+    - output
+    - demand
+    - construction
+    - productivity
+    - retail
+  url_terms:
+    - business
+    - money
+    - finance
+    - property
+    - housing
+    - mortgage
+    - economy
+    - cost-of-living
+    - energy
+    - consumer
+
+# Broad semantic anchors for econ gating.
+# The gate is deliberately broader than the 7 BoE topics.
+profiles:
+  econ_positive_anchors:
+    - >
+      A local or regional news story about inflation, prices, food costs, energy bills,
+      cost of living pressure, or changes in household purchasing power.
+    - >
+      A news story about household finances, borrowing, debt, loans, consumer credit,
+      savings, or financial pressure on households.
+    - >
+      A regional economic story about wages, jobs, labour market conditions, business demand,
+      output, investment, or changes in local economic activity.
+    - >
+      A story about housing costs, rents, mortgages, affordability, house prices,
+      or construction conditions affecting local households or firms.
+  econ_negative_anchors:
+    - >
+      A local sports story, match report, transfer story, player interview, or club news item.
+    - >
+      A crime, court, police, fire, accident, emergency, or breaking incident report.
+    - >
+      A culture, entertainment, theatre, television, music, festival, or review article.
+    - >
+      A property listing, lifestyle promotion, shopping guide, advertorial, or consumer deal page.
+    - >
+      A general local community story about schools, charity events, local politics,
+      celebrations, or public notices with no real economic analysis.
+
+# Compact and interpretable parameters for the regional index.
+risk:
+  prior_strength: 20.0  # Shrink small topic shares toward the global topic mean.
+  support_k: 5.0  # Downweight region-weeks with very little economic coverage.
+  zscore_clip: 3.0
+  weights:
+    surprise_z: 0.50
+    momentum_z: 0.30
+    mean_similarity_z: 0.20
+
+# This auxiliary lexicon stays optional and is not part of the core pipeline logic.
+lexicons:
+  anxiety:
+    - pressure
+    - squeeze
+    - crisis
+    - struggle
+    - hit hard
+    - worry
+    - surge
+    - shock
