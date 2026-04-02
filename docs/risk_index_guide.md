@@ -66,12 +66,14 @@
 
 Логика иерархическая:
 
-```python
-story_key =
-    duplicate_group
-    -> иначе article_id
-    -> иначе unique_article_id
-```
+$$
+\mathrm{story\_key} =
+\begin{cases}
+\mathrm{duplicate\_group}, & \text{если поле заполнено;} \\
+\mathrm{article\_id}, & \text{если } \mathrm{duplicate\_group} \text{ отсутствует;} \\
+\mathrm{unique\_article\_id}, & \text{если отсутствуют оба предыдущих поля.}
+\end{cases}
+$$
 
 Это означает следующее.
 
@@ -85,9 +87,9 @@ story_key =
 
 На этапе очистки создаётся поле `text_for_embedding`. Это первые `N` символов очищенного текста статьи:
 
-```python
-text_for_embedding = text_clean[:runtime["text_for_embedding_chars"]]
-```
+$$
+\mathrm{text\_for\_embedding} = \mathrm{text\_clean}[0:N]
+$$
 
 В текущем конфиге:
 
@@ -153,11 +155,13 @@ text_for_embedding_chars: 1200
 
 Тогда:
 
-```text
-econ_positive_max(i) = max_j cosine(s_i, p_j)
-econ_negative_max(i) = max_k cosine(s_i, n_k)
-econ_margin(i)       = econ_positive_max(i) - econ_negative_max(i)
-```
+$$
+\begin{aligned}
+\mathrm{econ\_positive\_max}(i) &= \max_j \cos(s_i, p_j), \\
+\mathrm{econ\_negative\_max}(i) &= \max_k \cos(s_i, n_k), \\
+\mathrm{econ\_margin}(i) &= \mathrm{econ\_positive\_max}(i) - \mathrm{econ\_negative\_max}(i).
+\end{aligned}
+$$
 
 В коде вычисление реализовано как матричное произведение нормализованных векторов:
 
@@ -180,22 +184,45 @@ negative_scores = embeddings @ negative_vectors.T
 
 Решение `is_econ` строится так:
 
-```text
-positive_rule =
-    econ_positive_max >= 0.50
-    and econ_margin >= 0.06
+$$
+\mathrm{positive\_rule} =
+\left(
+\mathrm{econ\_positive\_max} \ge 0.50
+\right)
+\land
+\left(
+\mathrm{econ\_margin} \ge 0.06
+\right)
+$$
 
-strong_rule =
-    strong_keyword_hit = True
-    and econ_positive_max >= 0.47
-    and econ_margin >= 0.03
+$$
+\mathrm{strong\_rule} =
+\left(
+\mathrm{strong\_keyword\_hit} = \mathrm{True}
+\right)
+\land
+\left(
+\mathrm{econ\_positive\_max} \ge 0.47
+\right)
+\land
+\left(
+\mathrm{econ\_margin} \ge 0.03
+\right)
+$$
 
-negative_guard =
-    econ_negative_max > econ_positive_max + 0.02
+$$
+\mathrm{negative\_guard} =
+\mathrm{econ\_negative\_max} > \mathrm{econ\_positive\_max} + 0.02
+$$
 
-is_econ =
-    (positive_rule or strong_rule) and not negative_guard
-```
+$$
+\mathrm{is\_econ} =
+\left(
+\mathrm{positive\_rule} \lor \mathrm{strong\_rule}
+\right)
+\land
+\neg \mathrm{negative\_guard}
+$$
 
 Смысл этой конструкции следующий.
 
@@ -208,9 +235,9 @@ is_econ =
 
 В текущей реализации:
 
-```text
-econ_confidence = econ_positive_max
-```
+$$
+\mathrm{econ\_confidence} = \mathrm{econ\_positive\_max}
+$$
 
 Это не вероятность и не итоговый индекс. Это максимальная семантическая близость истории к одному из положительных экономических якорей.
 
@@ -259,9 +286,9 @@ Seed examples: <joined seed examples>
 
 Тогда для каждой истории считается матрица близостей:
 
-```text
-sim(i, m) = cosine(s_i, t_m)
-```
+$$
+\mathrm{sim}(i,m) = \cos(s_i, t_m)
+$$
 
 В коде это снова матричное произведение нормализованных векторов:
 
@@ -279,9 +306,12 @@ similarity = embeddings @ topic_vectors.T
 
 Если первая и вторая темы слишком близки, история помечается как неоднозначная:
 
-```text
-topic_ambiguous = (top1_similarity - top2_similarity) < 0.02
-```
+$$
+\mathrm{topic\_ambiguous} =
+\left(
+\mathrm{top1\_similarity} - \mathrm{top2\_similarity}
+\right) < 0.02
+$$
 
 Порог `0.02` задаётся параметром `topic_ambiguous_margin`.
 
@@ -289,16 +319,14 @@ topic_ambiguous = (top1_similarity - top2_similarity) < 0.02
 
 Итоговая тема назначается не напрямую из `top_topic`, а по следующему правилу:
 
-```text
-если is_econ = False,
-    assigned_topic = unassigned
-
-если is_econ = True и top1_similarity >= 0.50,
-    assigned_topic = top_topic
-
-если is_econ = True и top1_similarity < 0.50,
-    assigned_topic = other_econ
-```
+$$
+\mathrm{assigned\_topic} =
+\begin{cases}
+\mathrm{unassigned}, & \text{если } \mathrm{is\_econ} = \mathrm{False}, \\
+\mathrm{top\_topic}, & \text{если } \mathrm{is\_econ} = \mathrm{True} \text{ и } \mathrm{top1\_similarity} \ge 0.50, \\
+\mathrm{other\_econ}, & \text{если } \mathrm{is\_econ} = \mathrm{True} \text{ и } \mathrm{top1\_similarity} < 0.50.
+\end{cases}
+$$
 
 Здесь `topic_min_similarity = 0.50`.
 
@@ -329,9 +357,9 @@ topic_ambiguous = (top1_similarity - top2_similarity) < 0.02
 
 Если в одном регионе и в одну неделю одна история встретилась `k` раз, то каждая такая строка получает вес:
 
-```text
-dup_weight = 1 / k
-```
+$$
+\mathrm{dup\_weight} = \frac{1}{k}
+$$
 
 ### `region_spread`
 
@@ -343,9 +371,10 @@ dup_weight = 1 / k
 
 Итоговый вес article-level строки:
 
-```text
-effective_weight = dup_weight / sqrt(region_spread)
-```
+$$
+\mathrm{effective\_weight} =
+\frac{\mathrm{dup\_weight}}{\sqrt{\mathrm{region\_spread}}}
+$$
 
 Смысл формулы следующий.
 
@@ -362,9 +391,11 @@ effective_weight = dup_weight / sqrt(region_spread)
 
 Для каждой пары `week × region` считается:
 
-```text
-total_econ_weight = сумма effective_weight по всем экономическим статьям
-```
+$$
+\mathrm{total\_econ\_weight} =
+\sum \mathrm{effective\_weight}
+\quad \text{по всем экономическим статьям региона и недели}
+$$
 
 Это общий объём экономического медиаполя региона в данную неделю.
 
@@ -372,9 +403,11 @@ total_econ_weight = сумма effective_weight по всем экономиче
 
 Для каждой тройки `week × region × topic` считается:
 
-```text
-n_articles = сумма effective_weight по статьям с assigned_topic = topic
-```
+$$
+\mathrm{n\_articles} =
+\sum \mathrm{effective\_weight}
+\quad \text{по статьям с } \mathrm{assigned\_topic} = \mathrm{topic}
+$$
 
 Несмотря на название, `n_articles` здесь не обязательно целое число. Это взвешенный объём тематического потока.
 
@@ -382,18 +415,14 @@ n_articles = сумма effective_weight по статьям с assigned_topic =
 
 Для каждой тройки `week × region × topic` считается:
 
-```text
-mean_similarity =
-    weighted average of top1_similarity
-    with weights = effective_weight
-```
-
-То есть:
-
-```text
-mean_similarity =
-    sum(top1_similarity * effective_weight) / sum(effective_weight)
-```
+$$
+\mathrm{mean\_similarity} =
+\frac{
+\sum \left(\mathrm{top1\_similarity} \cdot \mathrm{effective\_weight}\right)
+}{
+\sum \mathrm{effective\_weight}
+}
+$$
 
 Эта величина показывает, насколько уверенно тексты в данной ячейке действительно соответствуют теме.
 
@@ -401,9 +430,10 @@ mean_similarity =
 
 Первая базовая величина индекса:
 
-```text
-topic_share = n_articles / total_econ_weight
-```
+$$
+\mathrm{topic\_share} =
+\frac{\mathrm{n\_articles}}{\mathrm{total\_econ\_weight}}
+$$
 
 Если, например, `topic_share = 0.25`, это означает, что четверть экономического медиапотока региона за неделю пришлась на данную тему.
 
@@ -421,9 +451,10 @@ topic_share = n_articles / total_econ_weight
 
 Для каждой темы `t` сначала считается её глобальная доля во всей панели:
 
-```text
-mu_t = total_topic_weight_t / total_econ_weight_all
-```
+$$
+\mu_t =
+\frac{\mathrm{total\_topic\_weight}_t}{\mathrm{total\_econ\_weight}_{\mathrm{all}}}
+$$
 
 Где:
 
@@ -450,39 +481,45 @@ prior_strength = 20
 
 Хотя в коде они не создаются как отдельные переменные, математически используется такая конструкция:
 
-```text
-alpha_t = mu_t * m
-beta_t  = (1 - mu_t) * m
-```
+$$
+\alpha_t = \mu_t \cdot m
+$$
+
+$$
+\beta_t = (1 - \mu_t) \cdot m
+$$
 
 Тогда:
 
-```text
-alpha_t + beta_t = m
-```
+$$
+\alpha_t + \beta_t = m
+$$
 
 ### Формула `p_post`
 
 Для конкретной ячейки `region × week × topic`:
 
-```text
-y = n_articles
-N = total_econ_weight
-```
 
+$$
+y = n\_articles,\ N = total\_econ\_weight
+$$ 
 Сглаженная доля темы:
 
-```text
-p_post = (y + alpha_t) / (N + alpha_t + beta_t)
-```
+$$
+p_{\mathrm{post}} =
+\frac{y + \alpha_t}{N + \alpha_t + \beta_t}
+$$
 
-Так как `alpha_t + beta_t = m`, формула принимает вид:
+Так как $\alpha_t + \beta_t = m$ , формула принимает вид:
 
-```text
-p_post = (n_articles + topic_prior * prior_strength)
-         /
-         (total_econ_weight + prior_strength)
-```
+$$
+p_{\mathrm{post}} =
+\frac{
+\mathrm{n\_articles} + \mathrm{topic\_prior} \cdot \mathrm{prior\_strength}
+}{
+\mathrm{total\_econ\_weight} + \mathrm{prior\_strength}
+}
+$$
 
 Это точная формула, реализованная в коде.
 
@@ -499,12 +536,17 @@ p_post = (n_articles + topic_prior * prior_strength)
 
 ### `baseline_share`
 
-Это среднее значение `p_post` за предыдущие 8 недель:
+Это среднее значение $p_{\mathrm{post}}$ за предыдущие 8 недель:
 
-```text
-baseline_share =
-    mean of previous 8 weeks of p_post
-```
+$$
+\mathrm{baseline\_share}_t =
+\operatorname{mean}
+\left(
+p_{\mathrm{post},\,t-1},
+\ldots,
+p_{\mathrm{post},\,t-8}
+\right)
+$$
 
 Технически:
 
@@ -519,10 +561,15 @@ baseline_share =
 
 Это более короткая историческая норма:
 
-```text
-recent_share =
-    mean of previous 4 weeks of p_post
-```
+$$
+\mathrm{recent\_share}_t =
+\operatorname{mean}
+\left(
+p_{\mathrm{post},\,t-1},
+\ldots,
+p_{\mathrm{post},\,t-4}
+\right)
+$$
 
 Если данных не хватает, значение заполняется через `baseline_share`.
 
@@ -530,9 +577,10 @@ recent_share =
 
 Отклонение текущей сглаженной доли от обычного исторического уровня:
 
-```text
-surprise = p_post - baseline_share
-```
+$$
+\mathrm{surprise} =
+p_{\mathrm{post}} - \mathrm{baseline\_share}
+$$
 
 Интерпретация:
 
@@ -543,9 +591,10 @@ surprise = p_post - baseline_share
 
 Краткосрочное ускорение темы:
 
-```text
-momentum = p_post - recent_share
-```
+$$
+\mathrm{momentum} =
+p_{\mathrm{post}} - \mathrm{recent\_share}
+$$
 
 Интерпретация:
 
@@ -575,17 +624,17 @@ momentum = p_post - recent_share
 
 Формула стандартная:
 
-```text
-z(x) = (x - mean(x)) / std(x)
-```
+$$
+z(x) = \frac{x - \operatorname{mean}(x)}{\operatorname{std}(x)}
+$$
 
 Но применяется она внутри каждой темы, а не глобально по всей панели. Это важно, потому что разные темы естественным образом имеют разный разброс значений.
 
 Дополнительно используется ограничение:
 
-```text
-zscore_clip = 3.0
-```
+$$
+z(x) \in [-3, 3]
+$$
 
 Поэтому экстремальные значения обрезаются интервалом `[-3, 3]`.
 
@@ -597,15 +646,19 @@ zscore_clip = 3.0
 
 Поэтому вводится коэффициент поддержки:
 
-```text
-support = sqrt(total_econ_weight / (total_econ_weight + k))
-```
+$$
+\mathrm{support} =
+\sqrt{
+\frac{\mathrm{total\_econ\_weight}}
+{\mathrm{total\_econ\_weight} + k}
+}
+$$
 
 Где:
 
-```text
-k = support_k = 5
-```
+$$
+k = \mathrm{support\_k} = 5
+$$
 
 Интерпретация:
 
@@ -624,16 +677,18 @@ k = support_k = 5
 
 Итоговая формула:
 
-```text
-risk_score =
-    support
-    *
-    (
-        0.50 * surprise_z
-      + 0.30 * momentum_z
-      + 0.20 * mean_similarity_z
-    )
-```
+$$
+\mathrm{risk\_score} =
+\mathrm{support}
+\cdot
+\left(
+0.50 \cdot \mathrm{surprise\_z}
++
+0.30 \cdot \mathrm{momentum\_z}
++
+0.20 \cdot \mathrm{mean\_similarity\_z}
+\right)
+$$
 
 Это и есть финальный регионально-недельный индекс для данной темы.
 
@@ -706,9 +761,9 @@ total_econ_weight = 10.0
 
 Тогда сырая доля темы:
 
-```text
-topic_share = 3.0 / 10.0 = 0.30
-```
+$$
+\mathrm{topic\_share} = \frac{3.0}{10.0} = 0.30
+$$
 
 Пусть глобальная доля темы во всей панели:
 
@@ -719,11 +774,14 @@ prior_strength = 20
 
 Тогда:
 
-```text
-p_post = (3.0 + 0.08 * 20) / (10.0 + 20)
-       = (3.0 + 1.6) / 30
-       = 0.1533
-```
+$$
+p_{\mathrm{post}} =
+\frac{3.0 + 0.08 \cdot 20}{10.0 + 20}
+=
+\frac{3.0 + 1.6}{30}
+=
+0.1533
+$$
 
 Предположим, что историческая норма этой темы для данного региона:
 
@@ -734,47 +792,65 @@ recent_share = 0.11
 
 Тогда:
 
-```text
-surprise = 0.1533 - 0.09 = 0.0633
-momentum = 0.1533 - 0.11 = 0.0433
-```
+$$
+\mathrm{surprise} = 0.1533 - 0.09 = 0.0633
+$$
+
+$$
+\mathrm{momentum} = 0.1533 - 0.11 = 0.0433
+$$
 
 Предположим также:
 
-```text
-mean_similarity = 0.61
-```
+$$
+\mathrm{mean\_similarity} = 0.61
+$$
 
 После стандартизации внутри темы получаем:
 
-```text
-surprise_z = 1.4
-momentum_z = 1.0
-mean_similarity_z = 0.6
-```
+$$
+\mathrm{surprise\_z} = 1.4
+$$
+
+$$
+\mathrm{momentum\_z} = 1.0
+$$
+
+$$
+\mathrm{mean\_similarity\_z} = 0.6
+$$
 
 Фактор поддержки:
 
-```text
-support = sqrt(10 / (10 + 5)) = sqrt(10/15) ≈ 0.816
-```
+$$
+\mathrm{support} =
+\sqrt{\frac{10}{10 + 5}}
+=
+\sqrt{\frac{10}{15}}
+\approx 0.816
+$$
 
 Тогда:
 
-```text
-risk_score =
-    0.816 * (0.50 * 1.4 + 0.30 * 1.0 + 0.20 * 0.6)
-```
+$$
+\mathrm{risk\_score} =
+0.816 \cdot
+\left(
+0.50 \cdot 1.4 +
+0.30 \cdot 1.0 +
+0.20 \cdot 0.6
+\right)
+$$
 
-```text
-risk_score =
-    0.816 * (0.70 + 0.30 + 0.12)
-```
+$$
+\mathrm{risk\_score} =
+0.816 \cdot (0.70 + 0.30 + 0.12)
+$$
 
-```text
-risk_score =
-    0.816 * 1.12 ≈ 0.91
-```
+$$
+\mathrm{risk\_score} =
+0.816 \cdot 1.12 \approx 0.91
+$$
 
 Интерпретация такая:
 
