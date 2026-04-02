@@ -1,27 +1,27 @@
 # Semantic Map of Regional Media Agendas for Central-Bank Communication
 
-Этот репозиторий содержит MVP-пайплайн для построения семантической карты региональной медиаповестки по локальным онлайн-новостям Великобритании. Проект решает прикладную задачу раннего выявления тем, которые могут быть значимы для коммуникации центрального банка на региональном уровне.
+Этот репозиторий содержит MVP-пайплайн для построения семантической карты региональной медиаповестки по локальным онлайн-новостям Великобритании. Проект решает задачу раннего выявления тем, которые могут быть значимы для коммуникации центрального банка на региональном уровне.
 
-Пайплайн работает в пять шагов:
+Пайплайн включает пять шагов:
 
 1. очистка корпуса и нормализация временной и региональной привязки;
-2. построение дешёвого набора candidate-статей;
+2. построение набора candidate-статей;
 3. построение или переиспользование story-level embeddings;
 4. оценка экономической релевантности, присвоение тем Bank of England и расчёт регионального индекса;
 5. построение итоговых таблиц, карт и графиков.
 
-Текущие публичные результаты относятся к режиму sampled semantic pilot. Это означает, что семантический этап выполнялся на выборке story-level наблюдений, а не на полном корпусе.
+Текущие публичные результаты относятся к пилотному режиму (выборка из 120 тыс. статей). Это означает, что семантический этап выполнялся на выборке story-level наблюдений, а не на полном корпусе.
 
 ## Что находится в репозитории
 
 - `config/` — конфиги пайплайна и профили тем BoE.
-- `scripts/` — канонические скрипты пайплайна и сборки презентации.
+- `scripts/` — канонические backend-скрипты пайплайна.
 - `notebooks/` — основной notebook для воспроизведения и просмотра результатов.
 - `reports/figures/` — итоговые карты и графики в licence-safe форме.
-- `presentation/` — шаблон и финальная публичная версия презентации.
-- `data/demo/` — небольшой синтетический демонстрационный набор, созданный автором проекта.
+- `presentation/` — одна финальная публичная версия презентации.
+- `docs/` — пояснительные методические материалы по расчёту индекса и устройству пайплайна.
 - `data/output/hot_regions_topics.csv` — агрегированная таблица сильнейших регионально-тематических сочетаний без текстовых фрагментов корпуса.
-- `legacy/` — устаревшие скрипты и промежуточные материалы, сохранённые как история работы, но не входящие в основной публичный pipeline.
+- `legacy/` — устаревшие или вспомогательные материалы, которые не входят в основной публичный pipeline.
 
 ## Что не публикуется в GitHub
 
@@ -30,14 +30,14 @@
 - сырой корпус UKTwitNewsCor;
 - производные файлы с полными текстами новостей;
 - review-таблицы и snippet-таблицы с прямыми текстовыми фрагментами корпуса;
-- полные parquet-артефакты и полные embeddings;
+- полные parquet-артефакты и embeddings;
 - архивы с данными и другие крупные локальные файлы.
 
-Эти ограничения связаны как с размером артефактов, так и с лицензией исходного корпуса. Подробности приведены в [THIRD_PARTY_DATA.md](THIRD_PARTY_DATA.md).
+Подробности приведены в [THIRD_PARTY_DATA.md](THIRD_PARTY_DATA.md).
 
-## Структура данных и методология
+## Источник данных и методологическая рамка
 
-Источник данных — `articles.csv` из открытого корпуса UKTwitNewsCor: более 2,5 млн статей локальных онлайн-медиа Великобритании за январь 2020 — декабрь 2022, собранных по 360 локальным доменам и дополненных региональными и social-media метаданными. Корпус охватывает 94% Local Authority Districts и позволяет анализировать локальные медиаповестки по `LAD / main_LAD`.
+Источник данных — `articles.csv` из корпуса UKTwitNewsCor: более 2,5 млн статей локальных онлайн-медиа Великобритании за январь 2020 — декабрь 2022, собранных по 360 локальным доменам и дополненных региональными и social-media метаданными. Корпус охватывает 94% Local Authority Districts и позволяет анализировать локальные медиаповестки по `LAD / main_LAD`.
 
 Методологически проект измеряет не точную географию событий, а структуру локального медиаполя по административным районам.
 
@@ -48,15 +48,22 @@
 - синдицированные истории downweight-ятся через `effective_weight = dup_weight / sqrt(region_spread)`;
 - региональный индекс строится на сочетании трёх компонент: `surprise`, `momentum` и `mean_similarity`.
 
+Подробное описание всех переменных, формул и интерпретации индекса приведено в [docs/risk_index_guide.md](docs/risk_index_guide.md).
+
 ## Быстрый старт
 
-Ниже приведён минимальный сценарий для локальной работы из корня будущего репозитория `final_project`.
+Основной пользовательский интерфейс проекта — notebook [mvp_pipeline.ipynb](notebooks/mvp_pipeline.ipynb). Скрипты в `scripts/` используются как backend пайплайна, который notebook вызывает по шагам.
+
+Минимальная подготовка окружения:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
+python -m notebook
 ```
+
+После запуска Jupyter откройте `notebooks/mvp_pipeline.ipynb`.
 
 ### Сценарий 1. Работа с готовыми локальными артефактами
 
@@ -67,44 +74,26 @@ pip install -r requirements.txt
 - `data/interim/scored_articles.parquet`
 - `data/interim/regional_topic_index.parquet`
 
-В этом случае можно:
+В notebook для этого режима:
 
-```powershell
-.\.venv\Scripts\python.exe scripts/04_score_and_build_index.py --config config/settings.yaml --model-size small --reuse-embeddings
-.\.venv\Scripts\python.exe scripts/05_make_outputs.py --config config/settings.yaml
-.\.venv\Scripts\python.exe scripts/build_presentation.py
-```
+- оставьте `RUN_CLEANING = False`;
+- оставьте `RUN_CANDIDATES = False`;
+- установите `USE_EXISTING_EMBEDDINGS = True`.
 
-Альтернативно можно открыть `notebooks/mvp_pipeline.ipynb` и выбрать режим `Работа с готовыми локальными артефактами`.
+Notebook вызовет только те этапы, которые нужны для работы с уже собранными локальными артефактами и построения агрегированных результатов.
 
 ### Сценарий 2. Полный локальный прогон
 
-Полный прогон возможен только после отдельного получения корпуса UKTwitNewsCor в соответствии с его лицензией.
+Полный локальный прогон возможен только после отдельного получения корпуса UKTwitNewsCor в соответствии с его лицензией.
 
-```powershell
-.\.venv\Scripts\python.exe scripts/01_clean_articles.py --config config/settings.yaml
-.\.venv\Scripts\python.exe scripts/02_filter_candidates.py --config config/settings.yaml
-.\.venv\Scripts\python.exe scripts/03_build_embeddings.py --config config/settings.yaml --mode build --model-size small --run-mode dev
-.\.venv\Scripts\python.exe scripts/04_score_and_build_index.py --config config/settings.yaml --model-size small
-.\.venv\Scripts\python.exe scripts/05_make_outputs.py --config config/settings.yaml
-.\.venv\Scripts\python.exe scripts/build_presentation.py
-```
+В notebook для этого режима:
 
-## Демонстрационный набор
+- установите `RUN_CLEANING = True`;
+- установите `RUN_CANDIDATES = True`;
+- установите `USE_EXISTING_EMBEDDINGS = False`;
+- при необходимости измените `MODEL_SIZE` и `RUN_MODE`.
 
-В репозитории есть синтетический файл [data/demo/demo_articles.csv](data/demo/demo_articles.csv), созданный автором проекта. Он не относится к UKTwitNewsCor и может использоваться для smoke-test запуска.
-
-Для этого подготовлен отдельный конфиг:
-
-```powershell
-.\.venv\Scripts\python.exe scripts/01_clean_articles.py --config config/settings.demo.yaml
-.\.venv\Scripts\python.exe scripts/02_filter_candidates.py --config config/settings.demo.yaml
-.\.venv\Scripts\python.exe scripts/03_build_embeddings.py --config config/settings.demo.yaml --mode build --model-size small --run-mode full
-.\.venv\Scripts\python.exe scripts/04_score_and_build_index.py --config config/settings.demo.yaml --model-size small
-.\.venv\Scripts\python.exe scripts/05_make_outputs.py --config config/settings.demo.yaml
-```
-
-Demo-набор предназначен только для проверки работоспособности кода и не воспроизводит реальные результаты исследования.
+Notebook последовательно запустит канонический pipeline от очистки корпуса до итоговых таблиц и графиков.
 
 ## Ключевые артефакты на выходе
 
@@ -129,7 +118,7 @@ Demo-набор предназначен только для проверки р
 
 Ограничения текущей версии:
 
-- семантический прогон представлен в режиме sampled semantic pilot;
+- семантический прогон представлен в пилотном режиме (выборка из 120 тыс. статей);
 - ручная gold-label калибровка пока не выполнена;
 - качество результата чувствительно к выбору semantic thresholds и параметров сглаживания.
 
@@ -139,10 +128,9 @@ Demo-набор предназначен только для проверки р
 - pandas, numpy, pyarrow
 - sentence-transformers
 - matplotlib, seaborn
-- python-pptx, Pillow
 - YAML-конфиги
+- Jupyter Notebook
 
 ## Лицензия
 
 Код и авторские материалы репозитория распространяются по лицензии MIT. Третьесторонние данные лицензируются отдельно и не входят в действие MIT-лицензии. См. [LICENSE](LICENSE) и [THIRD_PARTY_DATA.md](THIRD_PARTY_DATA.md).
-

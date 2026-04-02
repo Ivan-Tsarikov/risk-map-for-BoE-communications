@@ -1,0 +1,168 @@
+{
+  "run_parameters": {
+    "chunk_size": 1000,
+    "text_min_length": 80,
+    "text_for_embedding_chars": 800,
+    "cleaning_date_min": "2020-01-01",
+    "cleaning_date_max": "2022-12-31",
+    "limit": null
+  },
+  "summary": {
+    "rows_seen": 10,
+    "rows_kept": 10,
+    "rows_dropped_short_text": 0,
+    "rows_dropped_date_outlier": 0,
+    "rows_dropped_missing_date": 0,
+    "rows_dropped_missing_region": 0,
+    "multi_tweet_rows": 0,
+    "clean_date_min": "2022-08-08 06:40:00+00:00",
+    "clean_date_max": "2022-12-12 07:50:00+00:00",
+    "duplicate_story_groups": 10
+  },
+  "missing_share": {
+    "unique_article_id": 0.0,
+    "article_text": 0.0,
+    "domain": 0.0,
+    "resolved_url": 0.0,
+    "article_author": 0.0,
+    "article_date": 0.0,
+    "article_id": 0.0,
+    "duplicate_group": 0.8,
+    "twitter": 0.0,
+    "twitter_id": 0.0,
+    "tweet_url": 0.0,
+    "tweet_date": 0.0,
+    "retweet_count": 0.0,
+    "reply_count": 0.0,
+    "like_count": 0.0,
+    "quote_count": 0.0,
+    "impression_count": 0.0,
+    "LAD": 0.0,
+    "main_LAD": 1.0,
+    "owner": 0.0
+  },
+  "top_regions": [
+    [
+      "Manchester",
+      1
+    ],
+    [
+      "Salford",
+      1
+    ],
+    [
+      "Birmingham",
+      1
+    ],
+    [
+      "Leeds",
+      1
+    ],
+    [
+      "Cardiff",
+      1
+    ],
+    [
+      "Bristol",
+      1
+    ],
+    [
+      "Liverpool",
+      1
+    ],
+    [
+      "Leicester",
+      1
+    ],
+    [
+      "Glasgow City",
+      1
+    ],
+    [
+      "Northumberland",
+      1
+    ]
+  ],
+  "examples": [
+    {
+      "unique_article_id": "demo-001",
+      "date": "2022-11-14 08:00:00+00:00",
+      "region": "Manchester",
+      "text_len": 206,
+      "raw_preview": "Local families in Manchester say rising rent, energy bills and grocery costs are putting pressure on household budgets this winter. Councillors reported growing demand for debt advice and emergency support.",
+      "clean_preview": "Local families in Manchester say rising rent, energy bills and grocery costs are putting pressure on household budgets this winter. Councillors reported growing demand for debt advice and emergency support."
+    },
+    {
+      "unique_article_id": "demo-002",
+      "date": "2022-11-14 09:00:00+00:00",
+      "region": "Salford",
+      "text_len": 204,
+      "raw_preview": "A similar cost-of-living story was published for Salford, describing higher rents, more expensive food and pressure on household finances. Local advisers said borrowing and arrears had become more common.",
+      "clean_preview": "A similar cost-of-living story was published for Salford, describing higher rents, more expensive food and pressure on household finances. Local advisers said borrowing and arrears had become more common."
+    },
+    {
+      "unique_article_id": "demo-003",
+      "date": "2022-10-03 07:30:00+00:00",
+      "region": "Birmingham",
+      "text_len": 180,
+      "raw_preview": "Employers in Birmingham reported labour shortages, wage pressure and slower hiring plans. Several manufacturers said higher payroll costs were affecting local investment decisions.",
+      "clean_preview": "Employers in Birmingham reported labour shortages, wage pressure and slower hiring plans. Several manufacturers said higher payroll costs were affecting local investment decisions."
+    },
+    {
+      "unique_article_id": "demo-004",
+      "date": "2022-09-19 10:15:00+00:00",
+      "region": "Leeds",
+      "text_len": 177,
+      "raw_preview": "Businesses in Leeds said weak consumer demand and higher financing costs were delaying expansion plans. Local firms described lower orders and more cautious investment activity.",
+      "clean_preview": "Businesses in Leeds said weak consumer demand and higher financing costs were delaying expansion plans. Local firms described lower orders and more cautious investment activity."
+    },
+    {
+      "unique_article_id": "demo-005",
+      "date": "2022-12-05 11:00:00+00:00",
+      "region": "Cardiff",
+      "text_len": 179,
+      "raw_preview": "Mortgage brokers in Cardiff reported weaker affordability, rising monthly repayments and fewer first-time buyers. Local agents also noted pressure on rents and construction costs.",
+      "clean_preview": "Mortgage brokers in Cardiff reported weaker affordability, rising monthly repayments and fewer first-time buyers. Local agents also noted pressure on rents and construction costs."
+    },
+    {
+      "unique_article_id": "demo-006",
+      "date": "2022-11-21 18:30:00+00:00",
+      "region": "Bristol",
+      "text_len": 196,
+      "raw_preview": "A football club in Bristol celebrated a late cup victory after a dramatic penalty shootout. Supporters praised the goalkeeper and the manager described the result as a turning point in the season.",
+      "clean_preview": "A football club in Bristol celebrated a late cup victory after a dramatic penalty shootout. Supporters praised the goalkeeper and the manager described the result as a turning point in the season."
+    },
+    {
+      "unique_article_id": "demo-007",
+      "date": "2022-08-08 06:40:00+00:00",
+      "region": "Liverpool",
+      "text_len": 185,
+      "raw_preview": "Police in Liverpool investigated a late-night burglary and asked residents to share information. Officers said the case remained open and no economic issues were involved in the report.",
+      "clean_preview": "Police in Liverpool investigated a late-night burglary and asked residents to share information. Officers said the case remained open and no economic issues were involved in the report."
+    },
+    {
+      "unique_article_id": "demo-008",
+      "date": "2022-11-07 09:20:00+00:00",
+      "region": "Leicester",
+      "text_len": 179,
+      "raw_preview": "Households in Leicester said food prices and utility bills were forcing cuts in spending and savings. Local charities reported more requests for financial support and debt advice.",
+      "clean_preview": "Households in Leicester said food prices and utility bills were forcing cuts in spending and savings. Local charities reported more requests for financial support and debt advice."
+    },
+    {
+      "unique_article_id": "demo-009",
+      "date": "2022-10-10 20:00:00+00:00",
+      "region": "Glasgow City",
+      "text_len": 181,
+      "raw_preview": "A theatre review in Glasgow praised a new production for its staging and performances. The article focused on direction, music and audience reaction rather than economic conditions.",
+      "clean_preview": "A theatre review in Glasgow praised a new production for its staging and performances. The article focused on direction, music and audience reaction rather than economic conditions."
+    },
+    {
+      "unique_article_id": "demo-010",
+      "date": "2022-12-12 07:50:00+00:00",
+      "region": "Northumberland",
+      "text_len": 187,
+      "raw_preview": "Northumberland households said higher heating costs and food prices were weakening purchasing power. Local businesses also reported lower demand and growing concern about winter spending.",
+      "clean_preview": "Northumberland households said higher heating costs and food prices were weakening purchasing power. Local businesses also reported lower demand and growing concern about winter spending."
+    }
+  ]
+}
