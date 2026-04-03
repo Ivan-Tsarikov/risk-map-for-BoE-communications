@@ -17,6 +17,7 @@ ENV/
 .DS_Store
 Thumbs.db
 ~$*.pptx
+presentation/
 
 # Raw third-party corpus and local-only source files
 articles.csv
