@@ -1,2 +1,0 @@
-week,region,topic,risk_score,n_articles,topic_share,snippet_rank,unique_article_id,resolved_url,top1_similarity,region_spread,representative_snippet
-2022-12-12,Northumberland,"Energy, food and administered-price shocks",0.9999810441082265,1.0,1.0,1,demo-010,https://demo.local/northumberland/heating-food-demand,0.6492562,1,Northumberland households said higher heating costs and food prices were weakening purchasing power.

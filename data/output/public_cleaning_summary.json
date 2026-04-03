@@ -5,5 +5,5 @@
   "rows_dropped_date_outlier": 416,
   "duplicate_story_groups": 2397489,
   "source_period_note": "Источник корпуса по статье: январь 2020 — декабрь 2022.",
-  "semantic_run_note": "Текущая публичная версия результатов относится к sampled semantic pilot."
+  "semantic_run_note": "Текущая публичная версия результатов является пилотной."
 }

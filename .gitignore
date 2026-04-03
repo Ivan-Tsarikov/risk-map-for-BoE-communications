@@ -26,7 +26,8 @@ districts.csv
 domains.csv
 2505.14326v1.pdf
 
-# Large local artifacts
+# Large local artifacts generated from the licensed corpus
+data/demo/
 data/interim/**
 data/output/**
 !data/output/hot_regions_topics.csv
@@ -38,4 +39,3 @@ _vendor/
 # Legacy binary and notebook history
 legacy/presentation/*.pptx
 legacy/notebooks/*.ipynb
-
