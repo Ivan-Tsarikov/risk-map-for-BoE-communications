@@ -1,4 +1,4 @@
-# Методическая записка: как считается региональный индекс риска
+# Как считается региональный индекс риска?
 
 ## Назначение документа
 
@@ -12,7 +12,7 @@
 - насколько уверенно статьи действительно относятся к данной теме;
 - достаточно ли велик объём экономического покрытия, чтобы считать сигнал устойчивым.
 
-Документ описывает текущую реализацию в коде проекта. Формулы и переменные соответствуют каноническому пайплайну в [01_clean_articles.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/01_clean_articles.py), [04_score_and_build_index.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/04_score_and_build_index.py) и [settings.yaml](/C:/3_Коммуникации_ЦБ/final_project/config/settings.yaml).
+Документ описывает текущую реализацию в коде проекта. Формулы и переменные соответствуют каноническому пайплайну в [01_clean_articles.py](scripts/01_clean_articles.py), [04_score_and_build_index.py](scripts/04_score_and_build_index.py) и [settings.yaml](config/settings.yaml).
 
 ## Общая логика расчёта
 
@@ -62,16 +62,16 @@
 
 ## Как появляется `story_key`
 
-`story_key` создаётся на этапе очистки корпуса в [01_clean_articles.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/01_clean_articles.py).
+`story_key` создаётся на этапе очистки корпуса в [01_clean_articles.py](scripts/01_clean_articles.py).
 
 Логика иерархическая:
 
 $$
-\mathrm{story\_key} =
+\mathrm{story\\_key} =
 \begin{cases}
-\mathrm{duplicate\_group}, & \text{если поле заполнено;} \\
-\mathrm{article\_id}, & \text{если } \mathrm{duplicate\_group} \text{ отсутствует;} \\
-\mathrm{unique\_article\_id}, & \text{если отсутствуют оба предыдущих поля.}
+\mathrm{duplicate\\_group}, & \text{если поле заполнено;} \\
+\mathrm{article\\_id}, & \text{если } \mathrm{duplicate\\_group} \text{ отсутствует;} \\
+\mathrm{unique\\_article\\_id}, & \text{если отсутствуют оба предыдущих поля.}
 \end{cases}
 $$
 
@@ -88,7 +88,7 @@ $$
 На этапе очистки создаётся поле `text_for_embedding`. Это первые `N` символов очищенного текста статьи:
 
 $$
-\mathrm{text\_for\_embedding} = \mathrm{text\_clean}[0:N]
+\mathrm{text\\_for\\_embedding} = \mathrm{text\\_clean}[0:N]
 $$
 
 В текущем конфиге:
@@ -110,7 +110,7 @@ text_for_embedding_chars: 1200
 
 ### Candidate stage
 
-Сначала в [02_filter_candidates.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/02_filter_candidates.py) строится дешёвый candidate set по keyword- и URL-правилам. Этот шаг нужен для снижения объёма данных до семантического этапа.
+Сначала в [02_filter_candidates.py](scripts/02_filter_candidates.py) строится дешёвый candidate set по keyword- и URL-правилам. Этот шаг нужен для снижения объёма данных до семантического этапа.
 
 На этом шаге вычисляются флаги:
 
@@ -123,7 +123,7 @@ text_for_embedding_chars: 1200
 
 ### Positive и negative anchors
 
-Экономическая релевантность определяется в [04_score_and_build_index.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/04_score_and_build_index.py) через сравнение embeddings историй с двумя группами якорей:
+Экономическая релевантность определяется в [04_score_and_build_index.py](scripts/04_score_and_build_index.py) через сравнение embeddings историй с двумя группами якорей:
 
 - положительные экономические якоря;
 - отрицательные якоря, описывающие типичные источники шума.
@@ -157,9 +157,9 @@ text_for_embedding_chars: 1200
 
 $$
 \begin{aligned}
-\mathrm{econ\_positive\_max}(i) &= \max_j \cos(s_i, p_j), \\
-\mathrm{econ\_negative\_max}(i) &= \max_k \cos(s_i, n_k), \\
-\mathrm{econ\_margin}(i) &= \mathrm{econ\_positive\_max}(i) - \mathrm{econ\_negative\_max}(i).
+\mathrm{econ\\_positive\\_max}(i) &= \max_j \cos(s_i, p_j), \\
+\mathrm{econ\\_negative\\_max}(i) &= \max_k \cos(s_i, n_k), \\
+\mathrm{econ\\_margin}(i) &= \mathrm{econ\\_positive\\_max}(i) - \mathrm{econ\\_negative\\_max}(i).
 \end{aligned}
 $$
 
@@ -174,7 +174,7 @@ negative_scores = embeddings @ negative_vectors.T
 
 ### Пороговые правила econ gate
 
-Пороговые значения задаются в [settings.yaml](/C:/3_Коммуникации_ЦБ/final_project/config/settings.yaml):
+Пороговые значения задаются в [settings.yaml](config/settings.yaml):
 
 - `econ_min_similarity = 0.50`
 - `econ_margin_threshold = 0.06`
@@ -185,43 +185,43 @@ negative_scores = embeddings @ negative_vectors.T
 Решение `is_econ` строится так:
 
 $$
-\mathrm{positive\_rule} =
+\mathrm{positive\\_rule} =
 \left(
-\mathrm{econ\_positive\_max} \ge 0.50
+\mathrm{econ\\_positive\\_max} \ge 0.50
 \right)
 \land
 \left(
-\mathrm{econ\_margin} \ge 0.06
+\mathrm{econ\\_margin} \ge 0.06
 \right)
 $$
 
 $$
-\mathrm{strong\_rule} =
+\mathrm{strong\\_rule} =
 \left(
-\mathrm{strong\_keyword\_hit} = \mathrm{True}
+\mathrm{strong\\_keyword\\_hit} = \mathrm{True}
 \right)
 \land
 \left(
-\mathrm{econ\_positive\_max} \ge 0.47
+\mathrm{econ\\_positive\\_max} \ge 0.47
 \right)
 \land
 \left(
-\mathrm{econ\_margin} \ge 0.03
+\mathrm{econ\\_margin} \ge 0.03
 \right)
 $$
 
 $$
-\mathrm{negative\_guard} =
-\mathrm{econ\_negative\_max} > \mathrm{econ\_positive\_max} + 0.02
+\mathrm{negative\\_guard} =
+\mathrm{econ\\_negative\\_max} > \mathrm{econ\\_positive\\_max} + 0.02
 $$
 
 $$
-\mathrm{is\_econ} =
+\mathrm{is\\_econ} =
 \left(
-\mathrm{positive\_rule} \lor \mathrm{strong\_rule}
+\mathrm{positive\\_rule} \lor \mathrm{strong\\_rule}
 \right)
 \land
-\neg \mathrm{negative\_guard}
+\neg \mathrm{negative\\_guard}
 $$
 
 Смысл этой конструкции следующий.
@@ -236,7 +236,7 @@ $$
 В текущей реализации:
 
 $$
-\mathrm{econ\_confidence} = \mathrm{econ\_positive\_max}
+\mathrm{econ\\_confidence} = \mathrm{econ\\_positive\\_max}
 $$
 
 Это не вероятность и не итоговый индекс. Это максимальная семантическая близость истории к одному из положительных экономических якорей.
@@ -247,7 +247,7 @@ $$
 
 ### Какие темы используются
 
-Темы задаются в [topic_profiles.yaml](/C:/3_Коммуникации_ЦБ/final_project/config/topic_profiles.yaml). В текущей версии используются семь тем:
+Темы задаются в [topic_profiles.yaml](config/topic_profiles.yaml). В текущей версии используются семь тем:
 
 - Inflation and expectations
 - Wages, labour market and services inflation
@@ -307,9 +307,9 @@ similarity = embeddings @ topic_vectors.T
 Если первая и вторая темы слишком близки, история помечается как неоднозначная:
 
 $$
-\mathrm{topic\_ambiguous} =
+\mathrm{topic\\_ambiguous} =
 \left(
-\mathrm{top1\_similarity} - \mathrm{top2\_similarity}
+\mathrm{top1\\_similarity} - \mathrm{top2\\_similarity}
 \right) < 0.02
 $$
 
@@ -320,11 +320,11 @@ $$
 Итоговая тема назначается не напрямую из `top_topic`, а по следующему правилу:
 
 $$
-\mathrm{assigned\_topic} =
+\mathrm{assigned\\_topic} =
 \begin{cases}
-\mathrm{unassigned}, & \text{если } \mathrm{is\_econ} = \mathrm{False}, \\
-\mathrm{top\_topic}, & \text{если } \mathrm{is\_econ} = \mathrm{True} \text{ и } \mathrm{top1\_similarity} \ge 0.50, \\
-\mathrm{other\_econ}, & \text{если } \mathrm{is\_econ} = \mathrm{True} \text{ и } \mathrm{top1\_similarity} < 0.50.
+\mathrm{unassigned}, & \text{если } \mathrm{is\\_econ} = \mathrm{False}, \\
+\mathrm{top\\_topic}, & \text{если } \mathrm{is\\_econ} = \mathrm{True} \text{ и } \mathrm{top1\\_similarity} \ge 0.50, \\
+\mathrm{other\\_econ}, & \text{если } \mathrm{is\\_econ} = \mathrm{True} \text{ и } \mathrm{top1\\_similarity} < 0.50.
 \end{cases}
 $$
 
@@ -358,7 +358,7 @@ $$
 Если в одном регионе и в одну неделю одна история встретилась `k` раз, то каждая такая строка получает вес:
 
 $$
-\mathrm{dup\_weight} = \frac{1}{k}
+\mathrm{dup\\_weight} = \frac{1}{k}
 $$
 
 ### `region_spread`
@@ -372,8 +372,8 @@ $$
 Итоговый вес article-level строки:
 
 $$
-\mathrm{effective\_weight} =
-\frac{\mathrm{dup\_weight}}{\sqrt{\mathrm{region\_spread}}}
+\mathrm{effective\\_weight} =
+\frac{\mathrm{dup\\_weight}}{\sqrt{\mathrm{region\\_spread}}}
 $$
 
 Смысл формулы следующий.
@@ -392,8 +392,8 @@ $$
 Для каждой пары `week × region` считается:
 
 $$
-\mathrm{total\_econ\_weight} =
-\sum \mathrm{effective\_weight}
+\mathrm{total\\_econ\\_weight} =
+\sum \mathrm{effective\\_weight}
 \quad \text{по всем экономическим статьям региона и недели}
 $$
 
@@ -404,9 +404,9 @@ $$
 Для каждой тройки `week × region × topic` считается:
 
 $$
-\mathrm{n\_articles} =
-\sum \mathrm{effective\_weight}
-\quad \text{по статьям с } \mathrm{assigned\_topic} = \mathrm{topic}
+\mathrm{n\\_articles} =
+\sum \mathrm{effective\\_weight}
+\quad \text{по статьям с } \mathrm{assigned\\_topic} = \mathrm{topic}
 $$
 
 Несмотря на название, `n_articles` здесь не обязательно целое число. Это взвешенный объём тематического потока.
@@ -416,11 +416,11 @@ $$
 Для каждой тройки `week × region × topic` считается:
 
 $$
-\mathrm{mean\_similarity} =
+\mathrm{mean\\_similarity} =
 \frac{
-\sum \left(\mathrm{top1\_similarity} \cdot \mathrm{effective\_weight}\right)
+\sum \left(\mathrm{top1\\_similarity} \cdot \mathrm{effective\\_weight}\right)
 }{
-\sum \mathrm{effective\_weight}
+\sum \mathrm{effective\\_weight}
 }
 $$
 
@@ -431,8 +431,8 @@ $$
 Первая базовая величина индекса:
 
 $$
-\mathrm{topic\_share} =
-\frac{\mathrm{n\_articles}}{\mathrm{total\_econ\_weight}}
+\mathrm{topic\\_share} =
+\frac{\mathrm{n\\_articles}}{\mathrm{total\\_econ\\_weight}}
 $$
 
 Если, например, `topic_share = 0.25`, это означает, что четверть экономического медиапотока региона за неделю пришлась на данную тему.
@@ -453,7 +453,7 @@ $$
 
 $$
 \mu_t =
-\frac{\mathrm{total\_topic\_weight}_t}{\mathrm{total\_econ\_weight}_{\mathrm{all}}}
+\frac{\mathrm{total\\_topic\\_weight}_t}{\mathrm{total\\_econ\\_weight}_{\mathrm{all}}}
 $$
 
 Где:
@@ -501,7 +501,7 @@ $$
 
 
 $$
-y = n\_articles,\ N = total\_econ\_weight
+y = n\\_articles,\ N = total\\_econ\\_weight
 $$ 
 Сглаженная доля темы:
 
@@ -515,9 +515,9 @@ $$
 $$
 p_{\mathrm{post}} =
 \frac{
-\mathrm{n\_articles} + \mathrm{topic\_prior} \cdot \mathrm{prior\_strength}
+\mathrm{n\\_articles} + \mathrm{topic\\_prior} \cdot \mathrm{prior\\_strength}
 }{
-\mathrm{total\_econ\_weight} + \mathrm{prior\_strength}
+\mathrm{total\\_econ\\_weight} + \mathrm{prior\\_strength}
 }
 $$
 
@@ -539,8 +539,8 @@ $$
 Это среднее значение $p_{\mathrm{post}}$ за предыдущие 8 недель:
 
 $$
-\mathrm{baseline\_share}_t =
-\operatorname{mean}
+\mathrm{baseline\\_share}_t =
+\mathrm{mean}
 \left(
 p_{\mathrm{post},\,t-1},
 \ldots,
@@ -562,8 +562,8 @@ $$
 Это более короткая историческая норма:
 
 $$
-\mathrm{recent\_share}_t =
-\operatorname{mean}
+\mathrm{recent\\_share}_t =
+\mathrm{mean}
 \left(
 p_{\mathrm{post},\,t-1},
 \ldots,
@@ -579,7 +579,7 @@ $$
 
 $$
 \mathrm{surprise} =
-p_{\mathrm{post}} - \mathrm{baseline\_share}
+p_{\mathrm{post}} - \mathrm{baseline\\_share}
 $$
 
 Интерпретация:
@@ -593,7 +593,7 @@ $$
 
 $$
 \mathrm{momentum} =
-p_{\mathrm{post}} - \mathrm{recent\_share}
+p_{\mathrm{post}} - \mathrm{recent\\_share}
 $$
 
 Интерпретация:
@@ -625,7 +625,7 @@ $$
 Формула стандартная:
 
 $$
-z(x) = \frac{x - \operatorname{mean}(x)}{\operatorname{std}(x)}
+z(x) = \frac{x - \mathrm{mean}(x)}{\mathrm{std}(x)}
 $$
 
 Но применяется она внутри каждой темы, а не глобально по всей панели. Это важно, потому что разные темы естественным образом имеют разный разброс значений.
@@ -649,15 +649,15 @@ $$
 $$
 \mathrm{support} =
 \sqrt{
-\frac{\mathrm{total\_econ\_weight}}
-{\mathrm{total\_econ\_weight} + k}
+\frac{\mathrm{total\\_econ\\_weight}}
+{\mathrm{total\\_econ\\_weight} + k}
 }
 $$
 
 Где:
 
 $$
-k = \mathrm{support\_k} = 5
+k = \mathrm{support\\_k} = 5
 $$
 
 Интерпретация:
@@ -678,15 +678,15 @@ $$
 Итоговая формула:
 
 $$
-\mathrm{risk\_score} =
+\mathrm{risk\\_score} =
 \mathrm{support}
 \cdot
 \left(
-0.50 \cdot \mathrm{surprise\_z}
+0.50 \cdot \mathrm{surprise\\_z}
 +
-0.30 \cdot \mathrm{momentum\_z}
+0.30 \cdot \mathrm{momentum\\_z}
 +
-0.20 \cdot \mathrm{mean\_similarity\_z}
+0.20 \cdot \mathrm{mean\\_similarity\\_z}
 \right)
 $$
 
@@ -762,7 +762,7 @@ total_econ_weight = 10.0
 Тогда сырая доля темы:
 
 $$
-\mathrm{topic\_share} = \frac{3.0}{10.0} = 0.30
+\mathrm{topic\\_share} = \frac{3.0}{10.0} = 0.30
 $$
 
 Пусть глобальная доля темы во всей панели:
@@ -775,12 +775,7 @@ prior_strength = 20
 Тогда:
 
 $$
-p_{\mathrm{post}} =
-\frac{3.0 + 0.08 \cdot 20}{10.0 + 20}
-=
-\frac{3.0 + 1.6}{30}
-=
-0.1533
+p_{\mathrm{post}} = \frac{3.0 + 0.08 \cdot 20}{10.0 + 20} = \frac{3.0 + 1.6}{30} = 0.1533
 $$
 
 Предположим, что историческая норма этой темы для данного региона:
@@ -803,37 +798,33 @@ $$
 Предположим также:
 
 $$
-\mathrm{mean\_similarity} = 0.61
+\mathrm{mean\\_similarity} = 0.61
 $$
 
 После стандартизации внутри темы получаем:
 
 $$
-\mathrm{surprise\_z} = 1.4
+\mathrm{surprise\\_z} = 1.4
 $$
 
 $$
-\mathrm{momentum\_z} = 1.0
+\mathrm{momentum\\_z} = 1.0
 $$
 
 $$
-\mathrm{mean\_similarity\_z} = 0.6
+\mathrm{mean\\_similarity\\_z} = 0.6
 $$
 
 Фактор поддержки:
 
 $$
-\mathrm{support} =
-\sqrt{\frac{10}{10 + 5}}
-=
-\sqrt{\frac{10}{15}}
-\approx 0.816
+\mathrm{support} = \sqrt{\frac{10}{10 + 5}} = \sqrt{\frac{10}{15}}\approx 0.816
 $$
 
 Тогда:
 
 $$
-\mathrm{risk\_score} =
+\mathrm{risk\\_score} =
 0.816 \cdot
 \left(
 0.50 \cdot 1.4 +
@@ -843,12 +834,12 @@ $$
 $$
 
 $$
-\mathrm{risk\_score} =
+\mathrm{risk\\_score} =
 0.816 \cdot (0.70 + 0.30 + 0.12)
 $$
 
 $$
-\mathrm{risk\_score} =
+\mathrm{risk\\_score} =
 0.816 \cdot 1.12 \approx 0.91
 $$
 
@@ -882,10 +873,10 @@ $$
 Если требуется проверить реализацию построчно, основные участки находятся здесь:
 
 - формирование `story_key` и `text_for_embedding`:
-  [01_clean_articles.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/01_clean_articles.py#L179)
+  [01_clean_articles.py](scripts/01_clean_articles.py#L179)
 - econ gate, topic assignment и перенос story-level результатов:
-  [04_score_and_build_index.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/04_score_and_build_index.py#L207)
+  [04_score_and_build_index.py](scripts/04_score_and_build_index.py#L207)
 - расчёт `effective_weight`, панели и итогового `risk_score`:
-  [04_score_and_build_index.py](/C:/3_Коммуникации_ЦБ/final_project/scripts/04_score_and_build_index.py#L343)
+  [04_score_and_build_index.py](scripts/04_score_and_build_index.py#L343)
 - параметры модели и индекса:
-  [settings.yaml](/C:/3_Коммуникации_ЦБ/final_project/config/settings.yaml#L40)
+  [settings.yaml](config/settings.yaml#L40)
