@@ -36,6 +36,5 @@ tmp_smoke/
 tmp_bench_*/
 _vendor/
 
-# Legacy binary and notebook history
-legacy/presentation/*.pptx
-legacy/notebooks/*.ipynb
+# Legacy materials
+legacy/
